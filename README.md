@@ -11,4 +11,4 @@ The code is very simple:
 
 Best tested in this orientation ![](http://i.imgur.com/vVoJ4I4.jpg)
 
-Please give me feedback if 
+## Feed back welcomed :)
