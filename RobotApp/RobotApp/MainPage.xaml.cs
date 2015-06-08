@@ -1,19 +1,32 @@
 ﻿using System;
-using System.IO;
 using System.Diagnostics;
-using Windows.UI.Xaml.Controls;
-using Windows.Storage;
+using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.UI.Core;
+using Microsoft.Band;
+using Microsoft.Band.Sensors;
 
 namespace RobotApp
 {
-    public sealed partial class MainPage : Page
+    public sealed partial class MainPage
     {
-        private static String defaultHostName = "tak-hp-laptop";
+        private static String defaultHostName = "";
         public static String serverHostName = defaultHostName; // read from config file
         public static bool isRobot = true; // determined by existence of hostName
 
         public static Stopwatch stopwatch;
+        private Timer timer;
+        private double xValue;
+        private double yValue;
+        private double zValue;
+        private IBandClient client;
+
+        public string XString { get; set; }
+        public string YString { get; set; }
+        public string ZString { get; set; }
 
         /// <summary>
         /// MainPage initialize all asynchronous functions
@@ -23,9 +36,120 @@ namespace RobotApp
             this.InitializeComponent();
             stopwatch = new Stopwatch();
             stopwatch.Start();
-
+            
             GetModeAndStartup();
         }
+        
+        public async void TryGetBand()
+        {
+            if (isRobot) return;
+            try
+            {
+                // Get the list of Microsoft Bands paired to the phone.
+                IBandInfo[] pairedBands = await BandClientManager.Instance.GetBandsAsync();
+
+                if (pairedBands.Length < 1) return;
+
+                // Connect to Microsoft Band.
+                client = await BandClientManager.Instance.ConnectAsync(pairedBands[0]);
+
+                UserConsent currentUserConsent = client.SensorManager.Accelerometer.GetCurrentUserConsent();
+
+                if (currentUserConsent == UserConsent.NotSpecified)
+                {
+                    await client.SensorManager.Accelerometer.RequestUserConsentAsync();
+                }
+                else if (currentUserConsent == UserConsent.Declined)
+                {
+                    return;
+                }
+
+                client.SensorManager.Accelerometer.ReportingInterval = client.SensorManager.Accelerometer.SupportedReportingIntervals.ToList()[2];
+
+                timer = new Timer(UpdateControls, null, 1000, 1000);
+                client.SensorManager.Accelerometer.ReadingChanged += OnChanged;
+                await client.SensorManager.Accelerometer.StartReadingsAsync();
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+            }
+        }
+
+        private void OnChanged(object sender, BandSensorReadingEventArgs<IBandAccelerometerReading> e)
+        {
+            double accelerationX = e.SensorReading.AccelerationX;
+            double accelerationY = e.SensorReading.AccelerationY;
+            double accelerationZ = e.SensorReading.AccelerationZ;
+
+            xValue = accelerationX.Equals(0) ? xValue : accelerationX;
+            yValue = accelerationY.Equals(0) ? yValue : accelerationY;
+            zValue = accelerationZ.Equals(0) ? zValue : accelerationZ;
+        }
+
+        private async void UpdateControls(object state)
+        {
+            if (isRobot) return;
+            await Dispatcher.RunAsync(CoreDispatcherPriority.High, delegate
+            {
+                x.Text = xValue.ToString();
+                y.Text = yValue.ToString();
+                z.Text = zValue.ToString();
+
+                bool left = yValue > 0.2;
+                bool right = yValue < -0.2;
+                bool forwards = xValue > 0.2;
+                bool backwards = xValue < -0.2;
+
+                if (forwards && left)
+                {
+                    TouchDir(Controllers.CtrlCmds.ForwardLeft);
+                    return;
+                }
+                if (forwards && right)
+                {
+                    TouchDir(Controllers.CtrlCmds.ForwardRight);
+                    return;
+                }
+                if (backwards && left)
+                {
+                    TouchDir(Controllers.CtrlCmds.BackLeft);
+                    return;
+                }
+                if (backwards && right)
+                {
+                    TouchDir(Controllers.CtrlCmds.BackRight);
+                    return;
+                }
+
+                if (left)
+                {
+                    TouchDir(Controllers.CtrlCmds.Left);
+                    return;
+                }
+
+                if (right)
+                {
+                    TouchDir(Controllers.CtrlCmds.Right);
+                    return;
+                }
+
+                if (forwards)
+                {
+                    TouchDir(Controllers.CtrlCmds.Forward);
+                    return;
+                }
+
+                if (backwards)
+                {
+                    TouchDir(Controllers.CtrlCmds.Backward);
+                    return;
+                }
+
+                TouchDir(Controllers.CtrlCmds.Stop);
+            });
+        }
+
 
         /// <summary>
         /// Show the current running mode
@@ -39,7 +163,7 @@ namespace RobotApp
         /// <summary>
         /// Switch and store the current running mode in local config file
         /// </summary>
-        public async void SwitchRunningMode ()
+        public async void SwitchRunningMode()
         {
             try
             {
@@ -53,6 +177,8 @@ namespace RobotApp
                 isRobot = serverHostName.Length > 0;
                 ShowStartupStatus();
                 NetworkCmd.NetworkInit(serverHostName);
+                
+                TryGetBand();
             }
             catch (Exception ex)
             {

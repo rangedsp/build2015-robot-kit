@@ -21,5 +21,31 @@
         <TextBox Name="Connection" HorizontalAlignment="Left" Background="White" Foreground="Black" Margin="169,530,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="52" Width="350" FontSize="25" />
         <Button Content="status" HorizontalAlignment="Left" Background="Blue" Foreground="White" Margin="169,590,0,0" VerticalAlignment="Top" Height="52" Width="350" Click="Status_Click" FontSize="20"/>
         <Button Content="Switch Mode" HorizontalAlignment="Left" Background="Yellow" Foreground="Black" Margin="650,42,0,0" VerticalAlignment="Top" Height="91" Width="161" Click="SwitchMode_Click" FontSize="18"/>
+        <StackPanel HorizontalAlignment="Left" Margin="555,481,0,0" VerticalAlignment="Top">
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="65"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="textBlock" HorizontalAlignment="Left" TextWrapping="Wrap" Text="x" VerticalAlignment="Top" Grid.Column="0" />
+                <TextBlock x:Name="x" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Grid.Column="1" />
+            </Grid>
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="65"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="y" VerticalAlignment="Top" Grid.Column="0" />
+                <TextBlock x:Name="y" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Grid.Column="1" />
+            </Grid>
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="65"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" TextWrapping="Wrap" Text="z" VerticalAlignment="Top" Grid.Column="0" />
+                <TextBlock x:Name="z" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Grid.Column="1" />
+            </Grid>
+        </StackPanel>
     </Grid>
 </Page>
