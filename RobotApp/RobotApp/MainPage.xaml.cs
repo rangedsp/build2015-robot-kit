@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.UI.Core;
 using Microsoft.Band;
@@ -13,7 +12,7 @@ namespace RobotApp
 {
     public sealed partial class MainPage
     {
-        private static String defaultHostName = "";
+        private static String defaultHostName = "169.254.250.82";
         public static String serverHostName = defaultHostName; // read from config file
         public static bool isRobot = true; // determined by existence of hostName
 
@@ -214,7 +213,7 @@ namespace RobotApp
 
             Controllers.XboxJoystickInit();
             NetworkCmd.NetworkInit(serverHostName);
-            MotorCtrl.MotorsInit();
+            if (isRobot) MotorCtrl.MotorsInit();
             Controllers.SetRobotDirection(Controllers.CtrlCmds.Stop, (int)Controllers.CtrlSpeeds.Max);
         }
     }

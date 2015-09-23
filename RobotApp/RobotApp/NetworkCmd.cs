@@ -19,13 +19,13 @@ namespace RobotApp
 
             hostName = host;
             Debug.WriteLine("NetworkInit() host={0}, port={1}", hostName, hostPort);
-            if (hostName.Length > 0) 
+            if (hostName.Length > 0)
             {
-                InitConnectionToHost(); 
+                InitConnectionToHost();
             }
-            else 
+            else
             {
-                if (listener == null) StartListener(); 
+                if (listener == null) StartListener();
             }
         }
 
@@ -94,7 +94,7 @@ namespace RobotApp
 
                         // re-send periodically
                         long msStart = MainPage.stopwatch.ElapsedMilliseconds;
-                        for (; ;)
+                        for (;;)
                         {
                             long msCurrent = MainPage.stopwatch.ElapsedMilliseconds;
                             if ((msCurrent - msStart) > 3000) break;

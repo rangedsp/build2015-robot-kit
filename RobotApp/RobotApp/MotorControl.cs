@@ -20,8 +20,8 @@ namespace RobotApp
 
             ticksPerMs = (ulong)(Stopwatch.Frequency) / 1000;
 
-            workItemThread = Windows.System.Threading.ThreadPool.RunAsync(
-                 (source) =>
+            workItemThread = ThreadPool.RunAsync(
+                 source =>
                  {
                      // setup, ensure pins initialized
                      ManualResetEvent mre = new ManualResetEvent(false);
